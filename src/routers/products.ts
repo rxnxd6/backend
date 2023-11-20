@@ -1,8 +1,6 @@
 import express from 'express'
 const router = express.Router()
-
 import Product from '../models/product'
-import Order from '../models/order'
 import ApiError from '../errors/ApiError'
 
 router.get('/', async (_, res) => {

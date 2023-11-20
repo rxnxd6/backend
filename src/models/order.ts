@@ -1,8 +1,5 @@
-import mongoose, { Document } from 'mongoose'
-// types
-// user: User
-// products: { product: Product; quantity: number }[]
-// date: string
+import mongoose from 'mongoose'
+
 export type OrderDocument = Document & {
     userId:mongoose.Schema.Types.ObjectId,
     products:{product: mongoose.Schema.Types.ObjectId, quantity: number}[],
