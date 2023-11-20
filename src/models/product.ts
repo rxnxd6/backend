@@ -2,6 +2,7 @@ import mongoose from 'mongoose'
 
 const productSchema = new mongoose.Schema(
   {
+   
     name: {
       type: String,
       index: true,
@@ -14,6 +15,24 @@ const productSchema = new mongoose.Schema(
     quantity: {
       type: Number,
       default: 1,
+    },
+    price: {
+      type:Number,
+      required: true,
+    },
+    categories:{
+      type: String,
+    },
+    variants:{
+      type: String,
+      
+    },
+    sizes:{
+      type: String,
+    },
+    image: {
+      type: String,
+    
     },
   }
 )
