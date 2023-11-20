@@ -1,7 +1,7 @@
 import express from 'express'
 import mongoose from 'mongoose'
 import { config } from 'dotenv'
-
+import morgan from 'morgan'
 import usersRouter from './routers/users'
 import productsRouter from './routers/products'
 import ordersRouter from './routers/orders'
@@ -13,6 +13,7 @@ const app = express()
 const PORT = 5050
 const URL = process.env.ATLAS_URL as string
 
+app.use(morgan('dev'))
 app.use(myLogger)
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
