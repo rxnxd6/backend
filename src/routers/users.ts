@@ -4,48 +4,92 @@ import ApiError from '../errors/ApiError'
 import User from '../models/user'
 const router = express.Router()
 
-router.param('userId', (req, res, next, userId) => {
-  const user = users.find((user) => user.id === userId)
-  if (!user) {
-    next(ApiError.badRequest('user id is required.'))
-    return
-  }
-  req.user = user
-  next()
+//List all Users : work 
+router.get('/', async (req, res) => {
+  const users = await User.find()
+
+  res.status(200).json(users)
 })
 
-router.delete('/:userId', (req, res) => {
-  const updatedUsers = users.filter((user) => user.id !== req.user.id)
-  res.json({ users: updatedUsers })
-})
-router.put('/:userId', (req, res) => {
-  const { first_name } = req.body
+//List one user : work 
+router.get('/:userId', async (req, res) => {
+  const userId = req.params.userId
+  const user = await User.findById(userId)
 
-  const updatedUsers = users.map((user) => {
-    if (user.id === req.user.id) {
-      return {
-        ...user,
-        first_name,
-      }
-    }
-    return user
+  res.status(200).json(user)
+})
+
+
+//Delete User : work
+router.delete('/:userId', async (req, res) => {
+  const { userId } = req.params
+
+  const deleteUser =await User.deleteOne({
+    _id: userId,
   })
-  res.json({ users: updatedUsers })
+  if(deleteUser['deletedCount'] === 1){
+    res.json({
+      msg: 'User delete it Successfully done',
+    })
+  }else{
+    res.json({
+      msg: 'User not found',
+    })
+  }
+
+ 
+
+
+
+
+
 })
 
-router.post('/', (req, res, next) => {
-  const { id, first_name } = req.body
+//Update user : Work
+router.put('/:userId', async (req, res) => {
+  const new_first_name = req.body.new_first_name
+  const new_last_name = req.body.new_last_name
+  const new_email = req.body.new_email
+  const new_password = req.body.new_password 
+  const new_avatar = req.body.new_avatar
+  const userId = req.params.userId
 
-  if (!id || !first_name) {
-    next(ApiError.badRequest('id and username are required'))
-    return
+  const newUser= await User.findByIdAndUpdate(
+    userId,
+    { first_name: new_first_name, last_name: new_last_name ,
+       email: new_email, password: new_password , avatar: new_avatar},
+    {
+      new: true,
+    }
+  )
+
+  res.json({
+    User: newUser,
+  })
+})
+
+//Add User : work
+router.post('/', async (req, res, next) => {
+
+  const { first_name, last_name, email, password, role } = req.body;
+
+  if ( !first_name || !last_name || !email || !password || !role) {
+    next(ApiError.badRequest('All user details are required'));
+    return;
   }
-  const updatedUsers = [{ id, first_name }, ...users]
+
+  const newUser = new User({first_name, last_name, email, password,role});
+  await newUser.save();
+    
+    
+
   res.json({
     msg: 'done',
-    users: updatedUsers,
+    users: newUser,
   })
 })
+
+
 
 router.get('/:userId/page/:page', (req, res) => {
   res.json({
@@ -63,15 +107,4 @@ router.get('/', async (_, res) => {
 
 export default router
 
-const users = [
-  { id: 'e539c0be-b51c-4462-8162-55cf584d9589', first_name: 'ksoutherton0' },
-  { id: '18db4fe3-a4b5-4720-af13-f98f00f22cc2', first_name: 'kmackowle1' },
-  { id: 'f03070b4-a084-4f94-b19e-40df0d6907c7', first_name: 'osmorthit2' },
-  { id: '6ac16842-a7ca-4942-b33d-6ec9407dac86', first_name: 'mlongland3' },
-  { id: '0d1491be-8415-4831-9566-742773751967', first_name: 'sgingles4' },
-  { id: 'fd4c2e80-4d14-48f9-8116-0a83617c45e3', first_name: 'msayward5' },
-  { id: '411cb4a0-63a2-48ec-924c-1008940b65b4', first_name: 'zedmons6' },
-  { id: '1e9a180e-2573-49ce-8a38-6692cb3948c2', first_name: 'kaymes7' },
-  { id: '1e1eaa42-d50d-48b3-a516-7df28e3eb605', first_name: 'jboyse8' },
-  { id: '9250cfcd-9789-418d-9826-2536d6d6ad39', first_name: 'jnockolds9' },
-]
+
