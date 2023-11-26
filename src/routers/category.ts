@@ -8,15 +8,17 @@ import {
   getCategory,
   updateCategory
 } from '../controllers/categoryController'
-const router=Router()
+import { validateCategory, validateCategoryId } from '../middlewares/vaildateCategory'
+
+const router = Router()
 //get categories
-router.get("/",getCategories)
+router.get('/', getCategories)
 // get Category by id
-router.get("/:categoryId",getCategory)
+router.get('/:categoryId', validateCategoryId, getCategory)
 //create category
-router.post("/",createCategory)
+router.post('/', validateCategory, createCategory,)
 // delete category
-router.delete("/:categoryId",deleteCategory)
+router.delete('/:categoryId', validateCategoryId, deleteCategory)
 // update category
-router.put("/:categoryId",updateCategory)
+router.put('/:categoryId', validateCategoryId,validateCategory, updateCategory)
 export default router
