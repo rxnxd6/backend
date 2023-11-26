@@ -1,22 +1,42 @@
-import express from 'express'
-const router = express.Router()
 import Product from '../models/product'
 import ApiError from '../errors/ApiError'
+import { Request, Response, NextFunction } from 'express'
 import product from '../models/product'
+import router from './users'
+//Get ALL Products
+export const getProducts = async (req: Request, res: Response, next: NextFunction) => {
+  const products = await Product.find().populate('categories')
+  res.status(200).json(
+    {
+      msg: "products is returned ",
+      products: products
+    })
+}
 
-router.get('/', async (_, res) => {
-  const products = await Product.find()
-  console.log('products:', products)
-  res.json(products)
-})
+//Get product by id
+export const getProductbyId = async (req: Request, res: Response) => {
+  const { productId } = req.params
+  const productbyId = await Product.findById({
+    _id: productId,
+  })
+  res.status(200).json({
+    msg: "Product by Id",
+    productbyId: productbyId
+  })
+  try {
+    const product = await Product.findById(productbyId)
 
-router.post('/', async (req, res, next) => {
-  const { name, description, quantity,price,image,variants,size,categories} = req.body
-
-  if (!name || !description||!price) {
-    next(ApiError.badRequest('Name , Description and price are requried'))
-    return
+    res.status(200).json(product)
   }
+  catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Internal Server Error' })
+  }
+}
+
+//create  a product 
+export const createProduct = async (req: Request, res: Response, next: NextFunction) => {
+  const { name, description, quantity, price, image, variants, size, categories } = req.body
   const product = new Product({
     name,
     description,
@@ -27,50 +47,63 @@ router.post('/', async (req, res, next) => {
     size,
     categories
   })
+    console.log(categories)
+  if (!name || !description || !price) {
+    next(ApiError.badRequest('Name , Description and price are requried'))
+    return
+  }
+
 
   await product.save()
-  res.json(product)
-})
-
-router.get('/:productId', async (req, res) => {
-  const productId = req.params.productId
-  console.log(productId)
-  try {
-  const product = await Product.findById(productId)
-  res.status(200).json(product)
-  // ... rest of the code
-} catch (error) {
-  console.error(error)
-  res.status(500).json({ error: 'Internal Server Error' })
+  res.status(200).json({
+    msg: 'product is created',
+    product: product,
+    category:categories
+  })
 }
-  // const product = await Product.findById(productId)
+//Update new product 
+export const updateProduct = async (req: Request, res: Response,) => {
+  const { productId } = req.params;
+  const { name, description, quantity, price, image, variants, size, categories } = req.body;
 
-})
+  // try {
+  //   const product = await Product.findByIdAndUpdate(productId,{
+  //     name, description, quantity, price, image, variants, size, categories
+  //   },{new:true});
 
-router.delete('/:productId', async (req, res) => {
+  //   // if (!product) {
+  //   //   return res.status(404).json({ error: 'Product not found' });
+  //   // }
+  //   res.status(200).json({ msg: "product is updated successfully ", product: product });
+  // } catch (error) {
+  //   console.error(error);
+  //   res.status(500).json({ error: 'Internal Server Error' });
+  // }
+  // const product= await Product.findByIdAndUpdate(
+  //   productId,
+  //   { 
+  //     name:name, description:description, quantity:quantity, price:price, image:image, variants:variants, size:size, categories:categories
+  //   },
+  //   {
+  //     new: true,
+  //   }
+  // )
+
+  res.json({
+    name
+  })
+}
+
+
+
+//Delete a product
+export const deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
   const { productId } = req.params
-  console.log(productId)
 
   await Product.deleteOne({
     _id: productId,
   })
 
-  res.status(204).send()
-})
-
-
-router.delete('/:productId', async (req, res) => {
-  const { productId } = req.params
-  console.log(productId)
-
-  // await Product.deleteOne({
-  //   _id: productId,
-  // })
-
-  // // res.status(204).send()
-  // res.status(204).send({
-  //   msg: 'Products is deleted'
-  // })
   try {
     const result = await Product.deleteOne({
       _id: productId,
@@ -84,38 +117,5 @@ router.delete('/:productId', async (req, res) => {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
-})
-
-router.put('/:productId', async (req, res) => {
-  const { productId } = req.params;
-  const { name, description, quantity, price, image, variants, size, categories } = req.body;
-
-  try {
-    const product = await Product.findById(productId);
-
-    if (!product) {
-      return res.status(404).json({ error: 'Product not found' });
-    }
-
-    // Update product properties
-    product.name = name || product.name;
-    product.description = description || product.description;
-    product.quantity = quantity || product.quantity;
-    product.price = price || product.price;
-    product.image = image || product.image;
-    product.variants = variants || product.variants;
-    product.size = size || product.size;
-    product.categories = categories || product.categories;
-
-    // Save the updated product
-    await product.save();
-
-    res.status(200).json(product);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-
+}
 export default router
