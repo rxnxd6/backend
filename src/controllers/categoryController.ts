@@ -30,6 +30,7 @@ export const createCategory= async  (req:Request, res:Response)=>{
   const category=new Category({
     name
   })
+  category.save()
   res.status(201).json({
     msg: "created category",
     category: category

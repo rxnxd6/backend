@@ -27,7 +27,7 @@ export const validateCreateOrder=(req: Request, res: Response, next: NextFunctio
 //-----done---
 export const validateOrderId=(req: Request, res: Response, next: NextFunction)=>{
   const getSchema  =z.object({
-   orderId : z.string().min(12)
+   orderId : z.string().min(24)
   })
   try {
     getSchema.parse(req.params)
