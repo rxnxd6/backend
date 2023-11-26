@@ -4,7 +4,7 @@ import ApiError from '../errors/ApiError'
 
 export const validateCategoryId = (req: Request, res: Response, next: NextFunction) => {
   const getSchema = z.object({
-    categoryId: z.string().min(24)
+    categoryId: z.string().length(24)
   })
   try {
     getSchema.parse(req.params)
