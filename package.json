@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "ts-watch": "tsc -w",
-    "start": "nodemon dist/server.js \" tsc -w \" "
+    "start": "nodemon dist/server.js"
   },
   "dependencies": {
     "@types/express": "^4.17.13",
