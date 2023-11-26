@@ -2,25 +2,32 @@ import express from 'express'
 
 import ApiError from '../errors/ApiError'
 import User from '../models/user'
-import { DeleteOneUser, addOneUser, getAllUsers, getOneUser, updateUser } from '../controllers/userController'
+import { DeleteOneUser, addOneUser, getAllUsers, getOneUser, register, updateUser } from '../controllers/userController'
+import { validateUser, validateUserID } from '../middlewares/userValdiation'
 const router = express.Router()
 
 //List all Users : work 
 router.get('/', getAllUsers)
 
 //List one user : work 
-router.get('/:userId', getOneUser)
+router.get('/:userId',validateUserID, getOneUser)
 
 
 //Delete User : work
-router.delete('/:userId', DeleteOneUser)
+router.delete('/:userId',validateUserID, DeleteOneUser)
 
 
 //Update user : Work
-router.put('/:userId', updateUser)
+router.put('/:userId',validateUserID, updateUser)
 
 //Add User : work
 router.post('/', addOneUser)
+
+
+
+
+router.post('/register',validateUser, register)
+
 
 
 
