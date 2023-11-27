@@ -28,11 +28,17 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String,
   },
-
+  isActive: {
+    type: Boolean,
+    default: false,
+  },
+  activationToken: {
+    type: String,
+  },
   // relation between order and user should be many orders to one user
   // here's 1to1 just for the demo
   order: {
-    type: [mongoose.Schema.Types.ObjectId] ,
+    type:[mongoose.Schema.Types.ObjectId] ,
 
     ref: 'Order',
   },
