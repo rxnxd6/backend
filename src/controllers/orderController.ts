@@ -7,12 +7,15 @@ import User from '../models/user'
 type SortOptions = {
   sort?: 'asc' | 'desc' | { name: number }
 }
+type Filter = {
+  date?:string
+}
+
 export const createOrder= async (req:Request, res:Response, next:NextFunction) => {
-  const { userId, products ,date } = req.body
+  const { userId, products  } = req.body
   const order = new Order({
     userId,
     products,
-    date
   })
   const user= await User.findOne({ _id: userId } ).exec()
   // console.log(user)
@@ -32,19 +35,34 @@ export const createOrder= async (req:Request, res:Response, next:NextFunction) =
 }
 
 export const getOrders = async (req:Request, res:Response) => {
-
-  const page:number=Number(req.query.page)||1
-  const perPage:number=Number(req.query.perPage)||3
+  const page:number=Number(req.query.page) || 1
+  const perPage:number=Number(req.query.perPage) || 3
+  const filter : Filter = {}
   const sortOptions: SortOptions = {}
-console.log(page,perPage)
+  const date = req.query.date || null
+  const sort = req.query.sort || null
+  if(date && typeof date ==='string') {
+    filter.date = date
+  }
+  //TODO test  sorting
+   if(sort && typeof sort ==='string') {
+      if (sort === 'asc'){
+        sortOptions.sort= 'asc'
+      }
+      if (sort==='desc'){
+        sortOptions.sort= 'desc'
+      }
+  }
+
+// console.log(page,perPage, date)
   //.populate('products') in populate write your key not name of models
-  const orders = await Order.find()
+  const orders = await Order.find(filter)
     .sort(sortOptions.sort)
     .skip((page - 1) * perPage)
     .limit(perPage)
     .populate('userId')
 
-  const totalItems = await Order.countDocuments()
+  const totalItems = await Order.countDocuments(filter)
   const totalPage = Math.ceil(totalItems / perPage)
 
   res.status(200).json({
@@ -53,6 +71,7 @@ console.log(page,perPage)
     perPage,
     totalItems,
     totalPage,
+    filter,
     orders:orders
   })
 }
@@ -74,7 +93,7 @@ export const deleteOrder = async (req:Request, res:Response,next:NextFunction) =
 export const getOrder= async (req:Request, res:Response) => {
   const  { orderId } = req.params
 
-  const order= await Order.findById(orderId).populate('products').populate('userId').exec()
+  const order= await Order.findById(orderId).populate('products.product').populate('userId').exec()
 
   if (order!=null){
     res.status(200).json({

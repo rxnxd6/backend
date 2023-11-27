@@ -1,8 +1,5 @@
 import express from 'express'
 const router = express.Router()
-import Product from '../models/product'
-import ApiError from '../errors/ApiError'
-import product from '../models/product'
 import { createProduct, deleteProduct, getProducts, getProductbyId, updateProduct } from '../controllers/productController'
 
 //Get product 
