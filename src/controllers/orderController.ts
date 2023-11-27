@@ -11,26 +11,23 @@ type Filter = {
   date?:string
 }
 
-export const createOrder= async (req:Request, res:Response, next:NextFunction) => {
+export const createOrder= async (req:Request, res:Response) => {
   const { userId, products  } = req.body
   const order = new Order({
     userId,
     products,
   })
-  const user= await User.findOne({ _id: userId } ).exec()
-  // console.log(user)
-  if (user!=null){
-    user.order.push(order)
+  const user= await User.findByIdAndUpdate(userId, { $push: { order: order } },{new: true}).exec()
+  if (!user){
+    res.status(404).json("not found user, wrong user id  "  )
+    return;
+  }else {
+    // save the new order
     await order.save()
-    await user.save()
     res.status(201).json({
       msg: 'done',
       order: order,
     })
-  }else{
-    res.status(404).json(' error ')
-    next(ApiError.badRequest(' not found userID in db '))
-    return
   }
 }
 
@@ -81,20 +78,16 @@ export const deleteOrder = async (req:Request, res:Response,next:NextFunction) =
   const isDelete= await Order.deleteOne({_id:orderId}).exec()
   // console.log(isDelete)
   if (isDelete['deletedCount'] === 1){
-    res.status(204).json({
+    res.status(201).json({
       msg: 'order is deleted'
     })
   }else {
     res.status(404).json('error')
-    next(ApiError.badRequest('not found orderId in db '))
-    return
   }
 }
 export const getOrder= async (req:Request, res:Response) => {
   const  { orderId } = req.params
-
   const order= await Order.findById(orderId).populate('products.product').populate('userId').exec()
-
   if (order!=null){
     res.status(200).json({
       msg:"order is returned ",

@@ -9,7 +9,7 @@ export const validateCreateOrder=(req: Request, res: Response, next: NextFunctio
     _id: z.string(),
   });
   const postSchema = z.object({
-    userId: z.string(),
+    userId: z.string().length(24),
     products: z.array(productSchema),
   });
   try {

@@ -30,7 +30,7 @@ const orderSchema = new mongoose.Schema({
     required: true,
     default:"under process"
   },
-  date:{
+  purchasedAt:{
     type:Date,
     required:true,
     default:Date.now()
