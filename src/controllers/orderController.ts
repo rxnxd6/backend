@@ -3,6 +3,10 @@ import {Request,Response,NextFunction} from 'express'
 import Order from '../models/order'
 import User from '../models/user'
 
+
+type SortOptions = {
+  sort?: 'asc' | 'desc' | { name: number }
+}
 export const createOrder= async (req:Request, res:Response, next:NextFunction) => {
   const { userId, products ,date } = req.body
   const order = new Order({
@@ -26,16 +30,29 @@ export const createOrder= async (req:Request, res:Response, next:NextFunction) =
     return
   }
 }
+
 export const getOrders = async (req:Request, res:Response) => {
+
   const page:number=Number(req.query.page)||1
   const perPage:number=Number(req.query.perPage)||3
-  const category=req.query.category
-
+  const sortOptions: SortOptions = {}
+console.log(page,perPage)
   //.populate('products') in populate write your key not name of models
-  const orders = await Order.find().populate('userId')
+  const orders = await Order.find()
+    .sort(sortOptions.sort)
+    .skip((page - 1) * perPage)
+    .limit(perPage)
+    .populate('userId')
+
+  const totalItems = await Order.countDocuments()
+  const totalPage = Math.ceil(totalItems / perPage)
 
   res.status(200).json({
     msg:"order is returned ",
+    page,
+    perPage,
+    totalItems,
+    totalPage,
     orders:orders
   })
 }
