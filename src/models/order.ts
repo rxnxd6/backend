@@ -1,14 +1,17 @@
-import mongoose from 'mongoose'
+import mongoose, { Schema } from 'mongoose'
 
 export type OrderDocument = Document & {
-    userId:mongoose.Schema.Types.ObjectId,
-    products:{product: mongoose.Schema.Types.ObjectId, quantity: number}[],
-    quantity: string,
-    date: string
+    userId:string,
+    products:{product: string, quantity: number}[],
+    date: Date,
+    status:"under process" | "shopped" | "finished" | "canceled"
 }
 
 const orderSchema = new mongoose.Schema({
-  userId: mongoose.Schema.Types.ObjectId,
+  userId:{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:'Client'
+  } ,
   products:[
     {
       product: {
@@ -16,12 +19,22 @@ const orderSchema = new mongoose.Schema({
         ref: 'Product'
       },
       quantity:{
-        type: String,
+        type: Number,
         required: true,
       }
   }
   ],
-  date: String
+  status:{
+    type:String,
+    enum: ["under process", "shopped", "finished", "canceled"],
+    required: true,
+    default:"under process"
+  },
+  date:{
+    type:Date,
+    required:true,
+    default:Date.now()
+  }
 
 })
 
