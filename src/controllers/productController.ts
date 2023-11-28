@@ -1,8 +1,8 @@
-
 import Product from '../models/product'
 import ApiError from '../errors/ApiError'
 import { Request, Response, NextFunction } from 'express'
 import product from '../models/product'
+
 //Get ALL Products
 export const getProducts = async (req: Request, res: Response, next: NextFunction) => {
   const products = await Product.find().populate('categories')
@@ -12,7 +12,6 @@ export const getProducts = async (req: Request, res: Response, next: NextFunctio
       products: products
     })
 }
-
 //Get product by id
 export const getProductbyId = async (req: Request, res: Response) => {
   const { productId } = req.params
@@ -47,43 +46,37 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
     size,
     categories
   })
-    // console.log(categories)
   if (!name || !description || !price) {
     next(ApiError.badRequest('Name , Description and price are requried'))
     return
   }
 
-
   await product.save()
-  res.status(200).json({
+  res.status(201).json({
     msg: 'product is created',
     product: product,
-    category:categories
+    category: categories
   })
 }
 //Update new product 
 export const updateProduct = async (req: Request, res: Response,) => {
   const { productId } = req.params;
   const { name, description, quantity, price, image, variants, size, categories } = req.body;
- 
-  const product= await Product.findByIdAndUpdate(
+
+  const product = await Product.findByIdAndUpdate(
     productId,
-    { 
-      name:name, description:description, quantity:quantity, price:price, image:image, variants:variants, size:size, categories:categories 
+    {
+      name: name, description: description, quantity: quantity, price: price, image: image, variants: variants, size: size, categories: categories
     },
     {
       new: true,
     }
   )
-
-
-  res.json({
-    product:product
+  res.status(201).json({
+    msg: 'product is updated',
+    product: product
   })
 }
-
-
-
 //Delete a product
 export const deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
   const { productId } = req.params
