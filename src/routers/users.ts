@@ -3,7 +3,7 @@ import express from 'express'
 import ApiError from '../errors/ApiError'
 import User from '../models/user'
 import { DeleteOneUser, addOneUser, getAllUsers, getOneUser, register, updateUser } from '../controllers/userController'
-import { validateUser, validateUserID } from '../middlewares/userValdiation'
+import { validateUpdateUser, validateUser, validateUserID } from '../middlewares/userValdiation'
 const router = express.Router()
 
 //List all Users : work 
@@ -18,7 +18,7 @@ router.delete('/:userId',validateUserID, DeleteOneUser)
 
 
 //Update user : Work
-router.put('/:userId',validateUserID, updateUser)
+router.put('/:userId',validateUserID,validateUpdateUser, updateUser)
 
 //Add User : work
 router.post('/', addOneUser)

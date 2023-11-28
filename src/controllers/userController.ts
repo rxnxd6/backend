@@ -1,7 +1,6 @@
 import ApiError from '../errors/ApiError'
 import {Request,Response,NextFunction} from 'express'
 import User from '../models/user'
-
 import crypto from 'crypto'
 import bcrypt from 'bcrypt'
 import { validateUser } from '../middlewares/userValdiation'
@@ -41,6 +40,7 @@ export const getAllUsers = async (req:Request, res:Response) => {
     const users = await User.find(filter)
     .skip((page-1)*perPage)
     .limit(perPage)
+    .populate('order')
 
     res.json({
       page,
@@ -58,16 +58,32 @@ export const getAllUsers = async (req:Request, res:Response) => {
   // Register user a varivaction
 
   export const register =  async(req:Request, res:Response,next :NextFunction) => {
-    const {first_name, last_name, email, password } = req.body
+    const {first_name, last_name, email, password } = req.validatedUser
   
     const userExists = await User.findOne({ email })
     if (userExists) {
       return next(ApiError.badRequest('Email already registered'))
     }
-    if ( !first_name || !last_name || !email || !password ) {
-      next(ApiError.badRequest('All user details are required'));
+    if (!first_name) {
+      next(ApiError.badRequest('First name is required'));
       return;
-    }
+  }
+  
+  if (!last_name) {
+      next(ApiError.badRequest('Last name is required'));
+      return;
+  }
+  
+  if (!email) {
+      next(ApiError.badRequest('Email is required'));
+      return;
+  }
+  
+  if (!password) {
+      next(ApiError.badRequest('Password is required'));
+      return;
+  }
+  
     const activationToken = generateActivationToken()
     // TODO: talk about hasing and Salt
     const hashedPassword = await bcrypt.hash(password, 10)
@@ -89,6 +105,8 @@ export const getAllUsers = async (req:Request, res:Response) => {
   export const getOneUser = async (req:Request, res:Response) => {
     const userId = req.params.userId
    const user = await User.findById(userId)
+   .populate('order')
+
 
   res.status(200).json(user)
   } 
@@ -117,17 +135,26 @@ export const updateUser = async (req:Request, res:Response) => {
   const new_password = req.body.new_password 
   const new_avatar = req.body.new_avatar
   const userId = req.params.userId
+  
+  const hashedPassword = await bcrypt.hash(new_password, 10)
 
   const newUser= await User.findByIdAndUpdate(
     userId,
     {
        first_name: new_first_name, last_name: new_last_name ,
-       email: new_email, password: new_password , avatar: new_avatar
+       email: new_email, password: hashedPassword , avatar: new_avatar
       },
     {
       new: true,
     }
   )
+  if(!newUser) {
+    res.json({
+      msg: 'User not found',
+      
+    })
+    return
+  }
 
   res.json({
     User: newUser,
