@@ -15,17 +15,13 @@ export const getProducts = async (req: Request, res: Response, next: NextFunctio
 //Get product by id
 export const getProductbyId = async (req: Request, res: Response) => {
   const { productId } = req.params
-  const productbyId = await Product.findById({
-    _id: productId,
-  })
-  res.status(200).json({
-    msg: "Product by Id",
-    productbyId: productbyId
-  })
   try {
-    const product = await Product.findById(productbyId)
+    const productbyId = await Product.findById({ _id: productId, })
 
-    res.status(200).json(product)
+    res.status(200).json({
+      msg: "Product by Id",
+      productbyId: productbyId
+    })
   }
   catch (error) {
     console.error(error)
@@ -80,22 +76,12 @@ export const updateProduct = async (req: Request, res: Response,) => {
 //Delete a product
 export const deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
   const { productId } = req.params
-
-  await Product.deleteOne({
-    _id: productId,
-  })
-
-  try {
-    const result = await Product.deleteOne({
-      _id: productId,
-    });
-    if (result.deletedCount > 0) {
-      res.status(204).send({ msg: 'Product deleted successfully' });
-    } else {
-      res.status(404).json({ error: 'Product not found' });
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
+  const isDelete = await Product.deleteOne({ _id: productId }).exec()
+  if (isDelete['deletedCount'] === 1) {
+    res.status(201).json({
+      msg: 'product is deleted'
+    })
+  } else {
+    res.status(404).json('error')
   }
 }
