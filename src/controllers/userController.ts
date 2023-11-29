@@ -3,7 +3,8 @@ import {Request,Response,NextFunction} from 'express'
 import User from '../models/user'
 import crypto from 'crypto'
 import bcrypt from 'bcrypt'
-import { validateUser } from '../middlewares/userValdiation'
+import { sendActivationEmail } from '../util/email'
+import jwt from 'jsonwebtoken'
 
 type Filter = {
 
@@ -59,7 +60,7 @@ export const getAllUsers = async (req:Request, res:Response) => {
 
   export const register =  async(req:Request, res:Response,next :NextFunction) => {
     const {first_name, last_name, email, password } = req.validatedUser
-  
+    try {
     const userExists = await User.findOne({ email })
     if (userExists) {
       return next(ApiError.badRequest('Email already registered'))
@@ -85,20 +86,97 @@ export const getAllUsers = async (req:Request, res:Response) => {
   }
   
     const activationToken = generateActivationToken()
-    // TODO: talk about hasing and Salt
+    // TODO: talk about hashing and Salt
     const hashedPassword = await bcrypt.hash(password, 10)
   
    
     const newUser = new User({first_name, last_name, email, password: hashedPassword,
       activationToken,role : "visitor"});
+
     
     await newUser.save()
+    await sendActivationEmail(email, activationToken)
+
   
     //TODO: send an email to the user for activation. the email should include the activationToken
   
     res.json({
-      msg: 'User registered.',
+      msg: 'User registered. Check your email to activate your account!',
       user: newUser,
+    })
+  } catch (error) {
+    console.log('error:', error)
+    next(ApiError.badRequest('Something went wrong'))
+  }
+  }
+  
+  export const login = async (req:Request, res:Response,next :NextFunction ) => {
+    const { email, password } = req.validatedLoginUser
+  try {
+    const user = await User.findOne({ email }).exec()
+
+    if (!user) {
+      return res.status(401).json({
+        msg: 'User is not found ',
+      })
+    }
+    // to compare hash password with the login passowrd
+    bcrypt.compare(password, user.password, (err, result) => {
+      if (err) {
+        return res.status(401).json({
+          msg: 'Password is not correct ',
+        })
+      }
+      if (result) {
+        const token = jwt.sign(
+          {
+            email: user.email,
+            userId: user._id,
+            role: user.role,
+          },
+          process.env.TOKEN_SECRET as string,
+          {
+            expiresIn: '24h',
+          }
+        )
+        return res.status(200).json({
+          msg: 'Login is successful',
+          token: token,
+        })
+      } else {
+        return res.status(401).json({
+          msg: 'Login is not successful',
+        })
+      }
+    })
+  } catch (error) {
+    console.log('Error in login', error)
+    return res.status(500).json({
+      message: 'Cannot find user',
+    })
+  }
+  }
+
+  
+
+
+
+
+  export const activation =  async(req:Request, res:Response,next :NextFunction) => {    const activationToken = req.params.activationToken
+    const user = await User.findOne({ activationToken })
+  
+    if (!user) {
+      next(ApiError.badRequest('Invalid activation token'))
+      return
+    }
+  
+    user.isActive = true
+    user.activationToken = undefined
+  
+    await user.save()
+  
+    res.status(200).json({
+      msg: 'Account activated successfully',
     })
   }
 

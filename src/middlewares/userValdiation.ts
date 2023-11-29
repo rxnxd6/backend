@@ -52,7 +52,28 @@ export function validateUpdateUser(req: Request, res: Response, next: NextFuncti
 }
 
 
+export function validateLoginUser(req: Request, res: Response, next: NextFunction) {
+  const schema = zod.object({
+   
+    email: zod.string().email(),
+    password: zod.string().min(5).max(50) // Adjust the password constraints
+    
+  })
 
+  try {
+    const validatedLoginUser=schema.parse(req.body)
+    req.validatedLoginUser = validatedLoginUser
+    next()
+  } catch (error) {
+    const err = error
+    if (err instanceof ZodError) {
+      next(ApiError.badRequestValidation(err.errors))
+      return
+    }
+
+    next(ApiError.internal('Something went wrong'))
+  }
+}
 
 
 

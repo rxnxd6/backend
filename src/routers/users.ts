@@ -2,19 +2,20 @@ import express from 'express'
 
 import ApiError from '../errors/ApiError'
 import User from '../models/user'
-import { DeleteOneUser, addOneUser, getAllUsers, getOneUser, register, updateUser } from '../controllers/userController'
-import { validateUpdateUser, validateUser, validateUserID } from '../middlewares/userValdiation'
+import { DeleteOneUser, activation, addOneUser, getAllUsers, getOneUser, login, register, updateUser } from '../controllers/userController'
+import { validateLoginUser, validateUpdateUser, validateUser, validateUserID } from '../middlewares/userValdiation'
+import { checkAuth } from '../middlewares/checkAuth'
 const router = express.Router()
 
 //List all Users : work 
-router.get('/', getAllUsers)
+router.get('/',checkAuth("admin"), getAllUsers)
 
 //List one user : work 
 router.get('/:userId',validateUserID, getOneUser)
 
 
 //Delete User : work
-router.delete('/:userId',validateUserID, DeleteOneUser)
+router.delete('/:userId',validateUserID,checkAuth("admin"), DeleteOneUser)
 
 
 //Update user : Work
@@ -27,6 +28,10 @@ router.post('/', addOneUser)
 
 
 router.post('/register',validateUser, register)
+router.post('/login',validateLoginUser, login)
+
+router.get('/activateUser/:activationToken',activation)
+
 
 
 
