@@ -18,7 +18,7 @@ export const getProducts = async (req: Request, res: Response, next: NextFunctio
 
   res.status(200).json({
     msg: 'products is returned ',
-    products:products,
+    products: products,
     page,
     perPage,
     totalProduct,
@@ -29,11 +29,11 @@ export const getProducts = async (req: Request, res: Response, next: NextFunctio
 export const getProductbyId = async (req: Request, res: Response) => {
   const { productId } = req.params
   try {
-    const productbyId = await Product.findById({ _id: productId })
+    const product = await Product.findById(productId)
 
     res.status(200).json({
-      msg: 'Product by Id',
-      productbyId: productbyId,
+      msg: "Product by Id",
+      productbyId: product
     })
   } catch (error) {
     console.error(error)
@@ -95,12 +95,22 @@ export const updateProduct = async (req: Request, res: Response) => {
 //Delete a product
 export const deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
   const { productId } = req.params
-  const isDelete = await Product.deleteOne({ _id: productId }).exec()
-  if (isDelete['deletedCount'] === 1) {
-    res.status(201).json({
-      msg: 'product is deleted',
-    })
-  } else {
-    res.status(404).json('error')
+
+  await Product.deleteOne({
+    _id: productId,
+  })
+
+  try {
+    const result = await Product.deleteOne({
+      _id: productId,
+    });
+    if (result.deletedCount > 0) {
+      res.status(204).send({ msg: 'Product deleted successfully' });
+    } else {
+      res.status(404).json({ error: 'Product not found' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 }
