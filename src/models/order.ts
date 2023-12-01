@@ -1,10 +1,11 @@
-import mongoose, { Schema } from 'mongoose'
+import mongoose from 'mongoose'
+import {OrderStatus} from "../types/orders";
 
 export type OrderDocument = Document & {
     userId:string,
     products:{product: string, quantity: number}[],
     date: Date,
-    status:"under process" | "shopped" | "finished" | "canceled"
+    status:OrderStatus
 }
 
 const orderSchema = new mongoose.Schema({
