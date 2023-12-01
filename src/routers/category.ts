@@ -1,6 +1,4 @@
-import { Router, Request, Response, NextFunction } from 'express'
-import Category from '../models/category'
-import ApiError from '../errors/ApiError'
+import { Router } from 'express'
 import {
   createCategory,
   deleteCategory,

@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from 'express'
 import { z, ZodError } from 'zod'
 import ApiError from '../errors/ApiError'
+import {servicesGetCategory} from "../services/categories";
 
-export const validateCategoryId = (req: Request, res: Response, next: NextFunction) => {
+export const validateCategoryId =  async (req: Request, res: Response, next: NextFunction) => {
   const getSchema = z.object({
     categoryId: z.string().length(24)
   })
