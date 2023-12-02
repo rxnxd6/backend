@@ -96,16 +96,16 @@ export const updateProduct = async (req: Request, res: Response) => {
 export const deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
   const { productId } = req.params
 
-  await Product.deleteOne({
-    _id: productId,
-  })
+  // await Product.deleteOne({
+  //   _id: productId,
+  // })
 
   try {
     const result = await Product.deleteOne({
       _id: productId,
     });
     if (result.deletedCount > 0) {
-      res.status(204).send({ msg: 'Product deleted successfully' });
+      res.status(200).send({ msg: 'Product deleted successfully' });
     } else {
       res.status(404).json({ error: 'Product not found' });
     }
