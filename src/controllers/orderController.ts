@@ -28,7 +28,6 @@ export const createOrder = async (req: Request, res: Response, next: NextFunctio
             const newQuantity = productInStore.quantity - item.quantity;
             productsAndNewQuantity.push({productId: item.product, newQuantity: newQuantity});
         }
-        // console.log(productsAndNewQuantity);
         // update Quantity
         productsAndNewQuantity.forEach(async (item) => await servicesUpdateProductQuantity(item.productId, item.newQuantity))
         //create new  order
