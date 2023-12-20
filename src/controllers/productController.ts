@@ -13,7 +13,7 @@ type SortOptions = {
 //Get ALL Products
 export const getProducts = async (req: Request, res: Response, next: NextFunction) => {
   const page = Number(req.query.page) || 1
-  const perPage = Number(req.query.perPage) || 3
+  const perPage = Number(req.query.perPage) || 5
   const products = await Product.find().populate('categories')
   const name = req.query.name
   const sort = req.query.sort
@@ -59,8 +59,8 @@ export const getProductbyId = async (req: Request, res: Response) => {
     const product = await Product.findById(productId)
 
     res.status(200).json({
-      msg: "Product by Id",
-      productbyId: product
+      msg: 'Product by Id',
+      productbyId: product,
     })
   } catch (error) {
     console.error(error)
@@ -70,15 +70,13 @@ export const getProductbyId = async (req: Request, res: Response) => {
 
 //create  a product
 export const createProduct = async (req: Request, res: Response, next: NextFunction) => {
-  const { name, description, quantity, price, image, variants, size, categories } = req.body
+  const { name, description, quantity, price, image, categories } = req.body
   const product = new Product({
     name,
     description,
     quantity,
     price,
     image,
-    variants,
-    size,
     categories,
   })
   if (!name || !description || !price) {
@@ -96,7 +94,7 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
 //Update new product
 export const updateProduct = async (req: Request, res: Response) => {
   const { productId } = req.params
-  const { name, description, quantity, price, image, variants, size, categories } = req.body
+  const { name, description, quantity, price, image, categories } = req.body
 
   const product = await Product.findByIdAndUpdate(
     productId,
@@ -106,8 +104,6 @@ export const updateProduct = async (req: Request, res: Response) => {
       quantity: quantity,
       price: price,
       image: image,
-      variants: variants,
-      size: size,
       categories: categories,
     },
     {
@@ -126,14 +122,14 @@ export const deleteProduct = async (req: Request, res: Response, next: NextFunct
   try {
     const result = await Product.deleteOne({
       _id: productId,
-    });
+    })
     if (result.deletedCount > 0) {
-      res.status(200).send({ msg: 'Product deleted successfully' });
+      res.status(200).send({ msg: 'Product deleted successfully' })
     } else {
-      res.status(404).json({ error: 'Product not found' });
+      res.status(404).json({ error: 'Product not found' })
     }
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error(error)
+    res.status(500).json({ error: 'Internal Server Error' })
   }
 }

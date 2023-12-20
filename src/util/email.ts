@@ -12,17 +12,17 @@ const transporter = nodemailer.createTransport({
     user: process.env.MAILER_USER,
     pass: process.env.MAILER_PASS,
   },
+  tls: {
+    rejectUnauthorized: false,
+  },
 })
-
-
 
 export async function sendActivationEmail(userEmail: string, activationToken: string) {
   const activationLink = `${process.env.MAILER_ACTIVATION_DOMAIN}/api/users/activateUser/${activationToken}`
   console.log('activationLink:', userEmail)
   console.log(process.env.MAILER_USER)
   console.log(process.env.MAILER_PASS)
-  
-  
+
   console.log(process.env.MAILER_USER)
   const mailOptions = {
     from: process.env.MAILER_USER,

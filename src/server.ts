@@ -1,6 +1,7 @@
 import express from 'express'
 import mongoose from 'mongoose'
 import { config } from 'dotenv'
+import cors, { CorsOptions } from 'cors'
 import morgan from 'morgan'
 import usersRouter from './routers/users'
 import productsRouter from './routers/products'
@@ -18,9 +19,10 @@ app.use(morgan('dev'))
 if (process.env.NODE_ENV === 'development') {
   app.use(myLogger)
 }
-
+app.use(cors())
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
+
 
 app.get('/', (req, res) => {
   res.json({
