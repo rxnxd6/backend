@@ -12,7 +12,7 @@ router.post('/', createProduct)
 // router.post('/', validateProduct, createProduct)
 
 //Update new product 
-router.put('/:productId', validateProduct, updateProduct)
+router.put('/:productId', updateProduct)
 //Delte product 
-router.delete('/:productId', validateProduct, deleteProduct)
+router.delete('/:productId', deleteProduct)
 export default router
