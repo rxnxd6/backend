@@ -8,7 +8,9 @@ router.get('/', getProducts)
 //Get product By id
 router.get('/:productId', getProductbyId)
 //Create new product 
-router.post('/', validateProduct, createProduct)
+router.post('/', createProduct)
+// router.post('/', validateProduct, createProduct)
+
 //Update new product 
 router.put('/:productId', validateProduct, updateProduct)
 //Delte product 

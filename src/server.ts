@@ -1,4 +1,4 @@
-import express from 'express'
+import express, {Request,Response} from 'express'
 import mongoose from 'mongoose'
 import { config } from 'dotenv'
 import cors, { CorsOptions } from 'cors'
@@ -36,6 +36,11 @@ app.use('/api/products', productsRouter)
 app.use('/api/categories', categoriesRouter)
 
 app.use(apiErrorHandler)
+app.use((req: Request, res: Response) => {
+  res.status(404).json({
+    message: 'route not found',
+  })
+})
 
 mongoose
   .connect(URL)

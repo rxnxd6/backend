@@ -12,12 +12,7 @@ import {
   register,
   updateUser,
 } from '../controllers/userController'
-import {
-  validateLoginUser,
-  validateUpdateUser,
-  validateUser,
-  validateUserID,
-} from '../middlewares/userValdiation'
+import { validateLoginUser, validateUpdateUser, validateUser } from '../middlewares/userValdiation'
 import { checkAuth } from '../middlewares/checkAuth'
 const router = express.Router()
 
@@ -26,13 +21,27 @@ router.get('/', getAllUsers)
 // router.get('/',checkAuth("admin"), getAllUsers)
 
 //List one user : work
-router.get('/:userId', validateUserID, getOneUser)
+router.get('/:userId', getOneUser)
 
 //Delete User : work
-router.delete('/:userId', validateUserID, checkAuth('admin'), DeleteOneUser)
+router.delete('/:userId', DeleteOneUser)
 
+router.put(
+  '/role',
+  /*checkAuth(‘ADMIN’),*/ async (req, res, next) => {
+    const userId = req.body.userId
+    const role = req.body.role
+    const user = await User.findOneAndUpdate({ _id: userId }, { role }, { new: true }).select([
+      '-password',
+      '-activationToken',
+    ])
+    res.json({
+      user,
+    })
+  }
+)
 //Update user : Work
-router.put('/:userId', validateUserID, validateUpdateUser, updateUser)
+router.put('/:userId', updateUser)
 
 //Add User : work
 router.post('/', addOneUser)
